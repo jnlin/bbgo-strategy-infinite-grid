@@ -43,7 +43,8 @@ type Strategy struct {
 
 	activeOrders *bbgo.LocalActiveOrderBook
 
-	orders map[uint64]types.Order
+	orders           map[uint64]types.Order
+	currentUpperGrid int
 
 	currentTotalValue fixedpoint.Value
 }
@@ -64,6 +65,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	}
 
 	s.currentTotalValue = s.Budget
+	s.currentUpperGrid = s.GridNum / 2
 	//currentPriceF := fixedpoint.NewFromFloat(currentPrice)
 	quantityF := s.Budget.Float64() / 2 / currentPrice
 
@@ -126,6 +128,59 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	s.activeOrders.Add(createdOrders...)
 }
 
+func (s *Strategy) submitFollowingOrder(order types.Order) {
+	var side = order.Side.Reverse()
+	var orders []types.SubmitOrder
+	var price float64
+
+	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 1 {
+		// Plase a more higher order
+		price = order.Price * (1.0 + s.Margin.Float64())
+		s.currentUpperGrid++
+		order := types.SubmitOrder{
+			Symbol:      s.Symbol,
+			Side:        order.Side,
+			Type:        types.OrderTypeLimit,
+			Quantity:    order.Quantity,
+			Price:       price,
+			TimeInForce: "GTC",
+		}
+
+		log.Infof("submitting order: %s, currentUpperGrid: %d", order.String(), s.currentUpperGrid)
+		orders = append(orders, order)
+	}
+
+	switch side {
+	case types.SideTypeSell:
+		price = order.Price * (1.0 + s.Margin.Float64())
+		s.currentUpperGrid++
+
+	case types.SideTypeBuy:
+		price = order.Price * (1.0 - s.Margin.Float64())
+		s.currentUpperGrid--
+	}
+
+	submitOrder := types.SubmitOrder{
+		Symbol:      s.Symbol,
+		Side:        side,
+		Type:        types.OrderTypeLimit,
+		Quantity:    order.Quantity,
+		Price:       price,
+		TimeInForce: "GTC",
+	}
+
+	log.Infof("submitting order: %s, currentUpperGrid: %d", order.String(), s.currentUpperGrid)
+	orders = append(orders, submitOrder)
+
+	createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), orders...)
+	if err != nil {
+		log.WithError(err).Errorf("can not place orders")
+		return
+	}
+
+	s.activeOrders.Add(createdOrders...)
+}
+
 func (s *Strategy) orderUpdateHandler(order types.Order) {
 	if order.Symbol != s.Symbol {
 		return
@@ -136,7 +191,7 @@ func (s *Strategy) orderUpdateHandler(order types.Order) {
 	switch order.Status {
 	case types.OrderStatusFilled:
 		s.activeOrders.Remove(order)
-		//s.submitFollowingOrder(order)
+		s.submitFollowingOrder(order)
 
 	case types.OrderStatusPartiallyFilled, types.OrderStatusNew:
 		s.activeOrders.Update(order)
