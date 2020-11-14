@@ -137,7 +137,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		// Plase a more higher order
 		price = order.Price * (1.0 + s.Margin.Float64())
 		s.currentUpperGrid++
-		order := types.SubmitOrder{
+		submitOrder := types.SubmitOrder{
 			Symbol:      s.Symbol,
 			Side:        order.Side,
 			Type:        types.OrderTypeLimit,
@@ -146,8 +146,8 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 			TimeInForce: "GTC",
 		}
 
-		log.Infof("submitting order: %s, currentUpperGrid: %d", order.String(), s.currentUpperGrid)
-		orders = append(orders, order)
+		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+		orders = append(orders, submitOrder)
 	}
 
 	switch side {
