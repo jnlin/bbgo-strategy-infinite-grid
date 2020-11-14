@@ -157,8 +157,10 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		TimeInForce: "GTC",
 	}
 
-	log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
-	orders = append(orders, submitOrder)
+	if price >= s.LowerPrice.Float64() {
+		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+		orders = append(orders, submitOrder)
+	}
 
 	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 0 {
 		// Plase a more higher order
