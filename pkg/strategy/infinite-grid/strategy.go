@@ -39,6 +39,7 @@ type Strategy struct {
 	Quantity fixedpoint.Value `json:"quantity"`
 
 	InitialOrderQuantity fixedpoint.Value `json:"initialOrderQuantity"`
+	CountOfMoreOrders    int              `json:"countOfMoreOrders"`
 
 	// GridNum is the grid number, how many orders you want to post on the orderbook.
 	GridNum int `json:"gridNumber"`
@@ -176,28 +177,8 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 
 	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 0 {
 		// Plase a more higher order
-		price = order.Price * (1.0 + s.Margin.Float64())
-		s.currentUpperGrid++
-		submitOrder := types.SubmitOrder{
-			Symbol:      s.Symbol,
-			Side:        order.Side,
-			Market:      s.Market,
-			Type:        types.OrderTypeLimit,
-			Quantity:    order.Quantity,
-			Price:       price,
-			TimeInForce: "GTC",
-		}
-
-		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
-		orders = append(orders, submitOrder)
-	}
-
-	if order.Side == types.SideTypeSell && s.currentLowerGrid <= 0 {
-		// Plase a more higher order
-		price = order.Price * (1.0 - s.Margin.Float64())
-
-		if price >= s.LowerPrice.Float64() {
-			s.currentLowerGrid++
+		for i := 1; i <= s.CountOfMoreOrders; i++ {
+			price = order.Price * math.Pow((1.0+s.Margin.Float64()), float64(i))
 			submitOrder := types.SubmitOrder{
 				Symbol:      s.Symbol,
 				Side:        order.Side,
@@ -210,6 +191,33 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 
 			log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
 			orders = append(orders, submitOrder)
+			s.currentUpperGrid++
+		}
+	}
+
+	if order.Side == types.SideTypeSell && s.currentLowerGrid <= 0 {
+		// Plase a more lower order
+		for i := 1; i <= s.CountOfMoreOrders; i++ {
+			price = order.Price * math.Pow((1.0-s.Margin.Float64()), float64(i))
+
+			if price < s.LowerPrice.Float64() {
+				break
+			}
+
+			submitOrder := types.SubmitOrder{
+				Symbol:      s.Symbol,
+				Side:        order.Side,
+				Market:      s.Market,
+				Type:        types.OrderTypeLimit,
+				Quantity:    order.Quantity,
+				Price:       price,
+				TimeInForce: "GTC",
+			}
+
+			log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+			orders = append(orders, submitOrder)
+			s.currentLowerGrid++
+
 		}
 	}
 
