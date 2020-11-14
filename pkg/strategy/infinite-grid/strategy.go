@@ -130,6 +130,21 @@ func (s *Strategy) orderUpdateHandler(order types.Order) {
 	if order.Symbol != s.Symbol {
 		return
 	}
+
+	log.Infof("order update: %s", order.String())
+
+	switch order.Status {
+	case types.OrderStatusFilled:
+		s.activeOrders.Remove(order)
+		//s.submitFollowingOrder(order)
+
+	case types.OrderStatusPartiallyFilled, types.OrderStatusNew:
+		s.activeOrders.Update(order)
+
+	case types.OrderStatusCanceled, types.OrderStatusRejected:
+		log.Infof("order status %s, removing %d from the active order pool...", order.Status, order.OrderID)
+		s.activeOrders.Remove(order)
+	}
 }
 
 func (s *Strategy) Subscribe(session *bbgo.ExchangeSession) {
