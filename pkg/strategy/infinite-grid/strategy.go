@@ -101,6 +101,9 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	for i := 1; i <= s.GridNum/2; i++ {
 		price := currentPrice * math.Pow((1.0-s.Margin.Float64()), float64(i))
 
+		if price < s.LowerPrice.Float64() {
+			break
+		}
 		order := types.SubmitOrder{
 			Symbol:      s.Symbol,
 			Side:        types.SideTypeBuy,
