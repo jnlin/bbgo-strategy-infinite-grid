@@ -133,23 +133,6 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	var orders []types.SubmitOrder
 	var price float64
 
-	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 1 {
-		// Plase a more higher order
-		price = order.Price * (1.0 + s.Margin.Float64())
-		s.currentUpperGrid++
-		submitOrder := types.SubmitOrder{
-			Symbol:      s.Symbol,
-			Side:        order.Side,
-			Type:        types.OrderTypeLimit,
-			Quantity:    order.Quantity,
-			Price:       price,
-			TimeInForce: "GTC",
-		}
-
-		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
-		orders = append(orders, submitOrder)
-	}
-
 	switch side {
 	case types.SideTypeSell:
 		price = order.Price * (1.0 + s.Margin.Float64())
@@ -171,6 +154,23 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 
 	log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
 	orders = append(orders, submitOrder)
+
+	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 0 {
+		// Plase a more higher order
+		price = order.Price * (1.0 + s.Margin.Float64())
+		s.currentUpperGrid++
+		submitOrder := types.SubmitOrder{
+			Symbol:      s.Symbol,
+			Side:        order.Side,
+			Type:        types.OrderTypeLimit,
+			Quantity:    order.Quantity,
+			Price:       price,
+			TimeInForce: "GTC",
+		}
+
+		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+		orders = append(orders, submitOrder)
+	}
 
 	createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), orders...)
 	if err != nil {
