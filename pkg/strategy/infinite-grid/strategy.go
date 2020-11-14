@@ -64,8 +64,8 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	}
 
 	s.currentTotalValue = s.Budget
-	currentPriceF := fixedpoint.NewFromFloat(currentPrice)
-	quantity := s.Budget / 2 / currentPriceF
+	//currentPriceF := fixedpoint.NewFromFloat(currentPrice)
+	quantityF := s.Budget.Float64() / 2 / currentPrice
 
 	// Buy half of value of asset
 	order := types.SubmitOrder{
@@ -73,7 +73,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 		Side:        types.SideTypeBuy,
 		Type:        types.OrderTypeLimit,
 		Market:      s.Market,
-		Quantity:    quantity.Float64(),
+		Quantity:    quantityF,
 		Price:       currentPrice,
 		TimeInForce: "GTC",
 	}
@@ -82,7 +82,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 
 	// Sell Side
 	for i := 1; i <= s.GridNum/2; i++ {
-		price := currentPrice * math.Pow((1+s.Margin).Float64(), float64(i))
+		price := currentPrice * math.Pow((1.0+s.Margin.Float64()), float64(i))
 
 		order := types.SubmitOrder{
 			Symbol:      s.Symbol,
@@ -99,7 +99,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 
 	// Buy Side
 	for i := 1; i <= s.GridNum/2; i++ {
-		price := currentPrice * math.Pow((1-s.Margin).Float64(), float64(i))
+		price := currentPrice * math.Pow((1.0-s.Margin.Float64()), float64(i))
 
 		order := types.SubmitOrder{
 			Symbol:      s.Symbol,
