@@ -130,7 +130,6 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 
 func (s *Strategy) submitFollowingOrder(order types.Order) {
 	var side = order.Side.Reverse()
-	var orders []types.SubmitOrder
 	var price float64
 
 	if order.Quantity != s.Quantity {
@@ -159,7 +158,14 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 
 	if price >= s.LowerPrice.Float64() {
 		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
-		orders = append(orders, submitOrder)
+
+		createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), submitOrder)
+		if err != nil {
+			log.WithError(err).Errorf("can not place orders")
+			return
+		}
+
+		s.activeOrders.Add(createdOrders...)
 	}
 
 	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 0 {
@@ -177,16 +183,15 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		}
 
 		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
-		orders = append(orders, submitOrder)
-	}
 
-	createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), orders...)
-	if err != nil {
-		log.WithError(err).Errorf("can not place orders")
-		return
-	}
+		createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), submitOrder)
+		if err != nil {
+			log.WithError(err).Errorf("can not place orders")
+			return
+		}
 
-	s.activeOrders.Add(createdOrders...)
+		s.activeOrders.Add(createdOrders...)
+	}
 }
 
 func (s *Strategy) orderUpdateHandler(order types.Order) {
