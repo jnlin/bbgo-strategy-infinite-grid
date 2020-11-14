@@ -169,7 +169,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		TimeInForce: "GTC",
 	}
 
-	log.Infof("submitting order: %s, currentUpperGrid: %d", order.String(), s.currentUpperGrid)
+	log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
 	orders = append(orders, submitOrder)
 
 	createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), orders...)
