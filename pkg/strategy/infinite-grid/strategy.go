@@ -47,6 +47,7 @@ type Strategy struct {
 
 	orders           map[uint64]types.Order
 	currentUpperGrid int
+	currentLowerGrid int
 
 	currentTotalValue fixedpoint.Value
 }
@@ -68,7 +69,6 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	}
 
 	s.currentTotalValue = s.Budget
-	s.currentUpperGrid = s.GridNum / 2
 	//currentPriceF := fixedpoint.NewFromFloat(currentPrice)
 	if s.InitialOrderQuantity > 0 {
 		quantityF = s.InitialOrderQuantity.Float64()
@@ -104,6 +104,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 		}
 		log.Infof("submitting order: %s", order.String())
 		orders = append(orders, order)
+		s.currentUpperGrid++
 	}
 
 	// Buy Side
@@ -124,6 +125,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 		}
 		log.Infof("submitting order: %s", order.String())
 		orders = append(orders, order)
+		s.currentLowerGrid++
 	}
 
 	createdOrders, err := orderExecutor.SubmitOrders(context.Background(), orders...)
@@ -151,6 +153,9 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 
 	case types.SideTypeBuy:
 		price = order.Price * (1.0 - s.Margin.Float64())
+		if price < s.LowerPrice.Float64() {
+			return
+		}
 		s.currentUpperGrid--
 	}
 
@@ -185,6 +190,27 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 
 		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
 		orders = append(orders, submitOrder)
+	}
+
+	if order.Side == types.SideTypeSell && s.currentLowerGrid <= 0 {
+		// Plase a more higher order
+		price = order.Price * (1.0 - s.Margin.Float64())
+
+		if price >= s.LowerPrice.Float64() {
+			s.currentLowerGrid++
+			submitOrder := types.SubmitOrder{
+				Symbol:      s.Symbol,
+				Side:        order.Side,
+				Market:      s.Market,
+				Type:        types.OrderTypeLimit,
+				Quantity:    order.Quantity,
+				Price:       price,
+				TimeInForce: "GTC",
+			}
+
+			log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+			orders = append(orders, submitOrder)
+		}
 	}
 
 	createdOrders, err := s.OrderExecutor.SubmitOrders(context.Background(), orders...)
