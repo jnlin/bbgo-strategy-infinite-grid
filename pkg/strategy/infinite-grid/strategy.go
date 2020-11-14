@@ -38,7 +38,7 @@ type Strategy struct {
 	// Quantity is the quantity you want to submit for each order.
 	Quantity fixedpoint.Value `json:"quantity"`
 
-	InitialOrderQuantity fixedpoint.Value `json:"quantity"`
+	InitialOrderQuantity fixedpoint.Value `json:"initialOrderQuantity"`
 
 	// GridNum is the grid number, how many orders you want to post on the orderbook.
 	GridNum int `json:"gridNumber"`
