@@ -36,7 +36,7 @@ type Strategy struct {
 	Margin fixedpoint.Value `json:"margin"`
 
 	// Quantity is the quantity you want to submit for each order.
-	Quantity float64 `json:"quantity"`
+	Quantity fixedpoint.Value `json:"quantity"`
 
 	// GridNum is the grid number, how many orders you want to post on the orderbook.
 	GridNum int `json:"gridNumber"`
@@ -76,7 +76,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 			Side:        types.SideTypeSell,
 			Type:        types.OrderTypeLimit,
 			Market:      s.Market,
-			Quantity:    s.Quantity,
+			Quantity:    s.Quantity.Float64(),
 			Price:       price,
 			TimeInForce: "GTC",
 		}
@@ -96,7 +96,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 			Side:        types.SideTypeBuy,
 			Type:        types.OrderTypeLimit,
 			Market:      s.Market,
-			Quantity:    s.Quantity,
+			Quantity:    s.Quantity.Float64(),
 			Price:       price,
 			TimeInForce: "GTC",
 		}
@@ -118,7 +118,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	var orders []types.SubmitOrder
 	var price float64
 
-	if order.Quantity != s.Quantity {
+	if order.Quantity != s.Quantity.Float64() {
 		return
 	}
 
