@@ -126,12 +126,6 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	s.activeOrders.Add(createdOrders...)
 }
 
-func (s *Strategy) tradeUpdateHandler(trade types.Trade) {
-	if trade.Symbol != s.Symbol {
-		return
-	}
-}
-
 func (s *Strategy) orderUpdateHandler(order types.Order) {
 	if order.Symbol != s.Symbol {
 		return
@@ -161,7 +155,6 @@ func (s *Strategy) Run(ctx context.Context, orderExecutor bbgo.OrderExecutor, se
 	})
 
 	session.Stream.OnOrderUpdate(s.orderUpdateHandler)
-	session.Stream.OnTradeUpdate(s.tradeUpdateHandler)
 	session.Stream.OnConnect(func() {
 		s.placeInfiniteGridOrders(orderExecutor, session)
 	})
