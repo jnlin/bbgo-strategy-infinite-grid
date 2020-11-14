@@ -67,7 +67,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	s.currentTotalValue = s.Budget
 	s.currentUpperGrid = s.GridNum / 2
 	//currentPriceF := fixedpoint.NewFromFloat(currentPrice)
-	quantityF := s.Quantity.Float64() / (1 - 1/1.0*s.Margin.Float64())
+	quantityF := s.Quantity.Float64() / (1 - 1/(1.0+s.Margin.Float64()))
 
 	// Buy half of value of asset
 	order := types.SubmitOrder{
