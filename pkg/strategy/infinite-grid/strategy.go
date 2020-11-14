@@ -151,6 +151,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		Symbol:      s.Symbol,
 		Side:        side,
 		Type:        types.OrderTypeLimit,
+		Market:      s.Market,
 		Quantity:    order.Quantity,
 		Price:       price,
 		TimeInForce: "GTC",
@@ -166,6 +167,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		submitOrder := types.SubmitOrder{
 			Symbol:      s.Symbol,
 			Side:        order.Side,
+			Market:      s.Market,
 			Type:        types.OrderTypeLimit,
 			Quantity:    order.Quantity,
 			Price:       price,
