@@ -38,6 +38,8 @@ type Strategy struct {
 	// Quantity is the quantity you want to submit for each order.
 	Quantity fixedpoint.Value `json:"quantity"`
 
+	InitialOrderQuantity fixedpoint.Value `json:"quantity"`
+
 	// GridNum is the grid number, how many orders you want to post on the orderbook.
 	GridNum int `json:"gridNumber"`
 
@@ -59,6 +61,7 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	}
 
 	var orders []types.SubmitOrder
+	var quantityF float64
 	currentPrice, ok := session.LastPrice(s.Symbol)
 	if !ok {
 		return
@@ -67,7 +70,11 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	s.currentTotalValue = s.Budget
 	s.currentUpperGrid = s.GridNum / 2
 	//currentPriceF := fixedpoint.NewFromFloat(currentPrice)
-	quantityF := s.Quantity.Float64() / (1 - 1/(1.0+s.Margin.Float64()))
+	if s.InitialOrderQuantity > 0 {
+		quantityF = s.InitialOrderQuantity.Float64()
+	} else {
+		quantityF = s.Quantity.Float64() / (1 - 1/(1.0+s.Margin.Float64()))
+	}
 
 	// Buy half of value of asset
 	order := types.SubmitOrder{
