@@ -57,6 +57,11 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	quoteCurrency := s.Market.QuoteCurrency
 	balances := session.Account.Balances()
 
+	if s.currentUpperGrid != 0 || s.currentLowerGrid != 0 {
+		// reconnect, do not place orders
+		return
+	}
+
 	balance, ok := balances[quoteCurrency]
 	if !ok || balance.Available <= 0 {
 		return
@@ -264,6 +269,8 @@ func (s *Strategy) Run(ctx context.Context, orderExecutor bbgo.OrderExecutor, se
 
 	s.orders = make(map[uint64]types.Order)
 	s.activeOrders = bbgo.NewLocalActiveOrderBook()
+	s.currentLowerGrid = 0
+	s.currentUpperGrid = 0
 
 	s.Graceful.OnShutdown(func(ctx context.Context, wg *sync.WaitGroup) {
 		defer wg.Done()
