@@ -151,6 +151,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	case types.SideTypeSell:
 		price = order.Price * (1.0 + s.Margin.Float64())
 		s.currentUpperGrid++
+		s.currentLowerGrid--
 
 	case types.SideTypeBuy:
 		price = order.Price * (1.0 - s.Margin.Float64())
@@ -158,6 +159,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 			return
 		}
 		s.currentUpperGrid--
+		s.currentLowerGrid++
 	}
 
 	submitOrder := types.SubmitOrder{
@@ -171,7 +173,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	}
 
 	if price >= s.LowerPrice.Float64() {
-		log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+		log.Infof("submitting order: %s, currentUpperGrid: %d, currentLowerGrid: %d", submitOrder.String(), s.currentUpperGrid, s.currentLowerGrid)
 		orders = append(orders, submitOrder)
 	}
 
@@ -214,7 +216,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 				TimeInForce: "GTC",
 			}
 
-			log.Infof("submitting order: %s, currentUpperGrid: %d", submitOrder.String(), s.currentUpperGrid)
+			log.Infof("submitting order: %s, currentLowerGrid: %d", submitOrder.String(), s.currentUpperGrid)
 			orders = append(orders, submitOrder)
 			s.currentLowerGrid++
 
