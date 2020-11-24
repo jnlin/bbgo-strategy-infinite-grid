@@ -147,6 +147,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	var side = order.Side.Reverse()
 	var orders []types.SubmitOrder
 	var price float64
+	const earlyPlacedCount = 2
 
 	if order.Quantity != s.Quantity.Float64() {
 		return
@@ -182,10 +183,10 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		orders = append(orders, submitOrder)
 	}
 
-	if order.Side == types.SideTypeSell && s.currentUpperGrid <= 2 {
+	if order.Side == types.SideTypeSell && s.currentUpperGrid <= earlyPlacedCount {
 		// Plase a more higher order
 		for i := 1; i <= s.CountOfMoreOrders; i++ {
-			price = order.Price * math.Pow((1.0+s.Margin.Float64()), float64(i))
+			price = order.Price * math.Pow((1.0+s.Margin.Float64()), float64(i+earlyPlacedCount))
 			submitOrder := types.SubmitOrder{
 				Symbol:      s.Symbol,
 				Side:        order.Side,
@@ -202,10 +203,10 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		}
 	}
 
-	if order.Side == types.SideTypeSell && s.currentLowerGrid <= 2 {
+	if order.Side == types.SideTypeSell && s.currentLowerGrid <= earlyPlacedCount {
 		// Plase a more lower order
 		for i := 1; i <= s.CountOfMoreOrders; i++ {
-			price = order.Price * math.Pow((1.0-s.Margin.Float64()), float64(i))
+			price = order.Price * math.Pow((1.0-s.Margin.Float64()), float64(i+earlyPlacedCount))
 
 			if price < s.LowerPrice.Float64() {
 				break
