@@ -203,7 +203,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		}
 	}
 
-	if order.Side == types.SideTypeSell && s.currentLowerGrid <= earlyPlacedCount {
+	if order.Side == types.SideTypeBuy && s.currentLowerGrid <= earlyPlacedCount {
 		// Plase a more lower order
 		for i := 1; i <= s.CountOfMoreOrders; i++ {
 			price = order.Price * math.Pow((1.0-s.Margin.Float64()), float64(i+earlyPlacedCount))
