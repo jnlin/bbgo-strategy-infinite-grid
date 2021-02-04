@@ -1,0 +1,58 @@
+---
+build:
+  dir: build
+  imports:
+  - github.com/jnlin/bbgo-strategy-infinite-grid
+  targets:
+  - name: ig-amd64-linux
+    os: linux
+    arch: amd64
+  - name: ig-amd64-darwin
+    os: darwin
+    arch: amd64
+  - name: ig-amd64-freebsd
+    os: freebsd
+    arch: amd64
+riskControls:
+  # This is the session-based risk controller, which let you configure different risk controller by session.
+  sessionBased:
+    # "max" is the session name that you want to configure the risk control
+    max:
+      # orderExecutor is one of the risk control
+      orderExecutor:
+        # symbol-routed order executor
+        bySymbol:
+          BTCUSDT:
+            # basic risk control order executor
+            basic:
+              minQuoteBalance: 100.0
+              maxBaseAssetBalance: 3.0
+              minBaseAssetBalance: 0.0
+              maxOrderAmount: 1000.0
+
+backtest:
+  # for testing max draw down (MDD) at 03-12
+  # see here for more details
+  # https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp
+  startTime: "2020-10-04"
+  endTime: "2020-10-28"
+  symbols:
+  - BTCUSDT
+  account:
+    makerCommission: 5
+    takerCommission: 15
+    balances:
+      BTC: 0.1
+      USDT: 10000.0
+
+exchangeStrategies:
+- on: max
+  infinitegrid:
+    symbol: BTCUSDT
+    quantity: 0.001
+    initialOrderQuantity: 0.0035
+    gridNumber: 8
+    countOfMoreOrders: 4
+    budget: 3200
+    margin: 0.005
+    lowerPrice: 13000.0
