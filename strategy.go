@@ -53,6 +53,10 @@ type Strategy struct {
 	currentTotalValue fixedpoint.Value
 }
 
+func (s *Strategy) ID() string {
+	return "infinitegrid"
+}
+
 func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, session *bbgo.ExchangeSession) {
 	quoteCurrency := s.Market.QuoteCurrency
 	balances := session.Account.Balances()
