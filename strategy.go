@@ -43,6 +43,7 @@ type Strategy struct {
 
 	// GridNum is the grid number, how many orders you want to post on the orderbook.
 	GridNum int `json:"gridNumber"`
+	Long bool `json:"long"`
 
 	activeOrders *bbgo.LocalActiveOrderBook
 
@@ -151,6 +152,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	var side = order.Side.Reverse()
 	var orders []types.SubmitOrder
 	var price float64
+	var quantity = order.Quantity
 	const earlyPlacedCount = 2
 
 	if order.Quantity != s.Quantity.Float64() {
@@ -168,6 +170,10 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		if price < s.LowerPrice.Float64() {
 			return
 		}
+		if s.Long {
+			var amount = order.Price * order.Quantity
+			quantity = amount / price
+		}
 		s.currentUpperGrid--
 		s.currentLowerGrid++
 	}
@@ -177,7 +183,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		Side:        side,
 		Type:        types.OrderTypeLimit,
 		Market:      s.Market,
-		Quantity:    order.Quantity,
+		Quantity:    quantity,
 		Price:       price,
 		TimeInForce: "GTC",
 	}

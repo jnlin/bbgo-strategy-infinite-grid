@@ -56,3 +56,4 @@ exchangeStrategies:
     budget: 3200
     margin: 0.005
     lowerPrice: 13000.0
+    long: true
