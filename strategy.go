@@ -155,7 +155,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 	var quantity = order.Quantity
 	const earlyPlacedCount = 2
 
-	if order.Quantity != s.Quantity.Float64() {
+	if order.Quantity == s.InitialOrderQuantity.Float64() {
 		return
 	}
 
