@@ -202,7 +202,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 				Side:        order.Side,
 				Market:      s.Market,
 				Type:        types.OrderTypeLimit,
-				Quantity:    order.Quantity,
+				Quantity:    s.Quantity.Float64(),
 				Price:       price,
 				TimeInForce: "GTC",
 			}
@@ -227,7 +227,7 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 				Side:        order.Side,
 				Market:      s.Market,
 				Type:        types.OrderTypeLimit,
-				Quantity:    order.Quantity,
+				Quantity:    s.Quantity.Float64(),
 				Price:       price,
 				TimeInForce: "GTC",
 			}
