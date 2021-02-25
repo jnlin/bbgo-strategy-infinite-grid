@@ -164,6 +164,9 @@ func (s *Strategy) submitFollowingOrder(order types.Order) {
 		price = order.Price * (1.0 + s.Margin.Float64())
 		s.currentUpperGrid++
 		s.currentLowerGrid--
+		if s.Long {
+			quantity = s.Quantity.Float64()
+		}
 
 	case types.SideTypeBuy:
 		price = order.Price * (1.0 - s.Margin.Float64())
