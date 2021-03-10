@@ -257,7 +257,7 @@ func (s *Strategy) orderUpdateHandler(order types.Order) {
 	}
 
 	log.Infof("order update: %s", order.String())
-        s.Notify("order update: %s", order.String())
+        s.Notifiability.Notify("order update: %s", order.String())
 
 	switch order.Status {
 	case types.OrderStatusFilled:
