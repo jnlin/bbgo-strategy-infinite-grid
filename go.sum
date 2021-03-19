@@ -34,8 +34,8 @@ github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 h1:DDGfHa7BWjL4Yn
 github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869/go.mod h1:Ekp36dRnpXw/yCqJaO+ZrUyxD+3VXMFFr56k5XYrpB4=
 github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc h1:biVzkmvwrH8WK8raXaxBx6fRVTlJILwEwQGL1I/ByEI=
 github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
-github.com/c9s/bbgo v1.13.0 h1:2JXgB9ND2MmBQ82VvbApI7WJAsMQRr4kiGAb0Sd+naU=
-github.com/c9s/bbgo v1.13.0/go.mod h1:Ja7zxcoLhG6w2mpkRlMOjmB7QSmxR/H5WPgktbHu7WQ=
+github.com/c9s/bbgo v1.14.0 h1:iEknIi/2VDKKzVXzWoyZQQjaAc2LNJFANKvAxZ/eK6A=
+github.com/c9s/bbgo v1.14.0/go.mod h1:Ja7zxcoLhG6w2mpkRlMOjmB7QSmxR/H5WPgktbHu7WQ=
 github.com/c9s/rockhopper v1.2.1-0.20210217093258-2661955904a9 h1:Wlr5DjDOf5Kygoo0LoUthxwAhNwLEXMWHqCKXbMHCsw=
 github.com/c9s/rockhopper v1.2.1-0.20210217093258-2661955904a9/go.mod h1:KJnQjZSrWA83jjwGF/+O7Y96VCVirYTYEvXJJOc6kMU=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
