@@ -42,8 +42,8 @@ type Strategy struct {
 	CountOfMoreOrders    int              `json:"countOfMoreOrders"`
 
 	// GridNum is the grid number, how many orders you want to post on the orderbook.
-	GridNum int `json:"gridNumber"`
-	Long bool `json:"long"`
+	GridNum int  `json:"gridNumber"`
+	Long    bool `json:"long"`
 
 	activeOrders *bbgo.LocalActiveOrderBook
 
@@ -103,6 +103,11 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	// Sell Side
 	for i := 1; i <= s.GridNum/2; i++ {
 		price := currentPrice * math.Pow((1.0+s.Margin.Float64()), float64(i))
+
+		if price < s.LowerPrice.Float64() {
+			i--
+			continue
+		}
 
 		order := types.SubmitOrder{
 			Symbol:      s.Symbol,
@@ -257,7 +262,7 @@ func (s *Strategy) orderUpdateHandler(order types.Order) {
 	}
 
 	log.Infof("order update: %s", order.String())
-        s.Notifiability.Notify("order update: %s", order.String())
+	s.Notifiability.Notify("order update: %s", order.String())
 
 	switch order.Status {
 	case types.OrderStatusFilled:
