@@ -101,8 +101,10 @@ func (s *Strategy) placeInfiniteGridOrders(orderExecutor bbgo.OrderExecutor, ses
 	orders = append(orders, order)
 
 	// Sell Side
+	j := 1
 	for i := 1; i <= s.GridNum/2; i++ {
-		price := currentPrice * math.Pow((1.0+s.Margin.Float64()), float64(i))
+		price := currentPrice * math.Pow((1.0+s.Margin.Float64()), float64(j))
+		j++
 
 		if price < s.LowerPrice.Float64() {
 			i--
